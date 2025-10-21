@@ -795,7 +795,11 @@ async function exportarPdf() {
         doc.text('Fecha', 15, y);
         doc.text('Lotes', 60, y);
         doc.text('Descripción', 120, y);
+        doc.text('Foto', 175, y); // Nueva columna para foto
         doc.setFont('helvetica', 'normal');
+        
+        // Dibujar línea debajo de las cabeceras
+        doc.line(10, y + 2, 205, y + 2);
         
         y += 8;
         
@@ -822,37 +826,44 @@ async function exportarPdf() {
                 doc.text('Fecha', 15, y);
                 doc.text('Lotes', 60, y);
                 doc.text('Descripción', 120, y);
+                doc.text('Foto', 175, y); // Nueva columna para foto
                 doc.setFont('helvetica', 'normal');
+                
+                // Dibujar línea debajo de las cabeceras
+                doc.line(10, y + 2, 205, y + 2);
                 
                 y += 8;
             }
             
+            // Guardar posición Y inicial de la fila
+            const rowStartY = y;
+            
+            // Calcular altura necesaria para esta fila (considerando texto largo)
+            const descripcion = actividad.descripcion || '';
+            const splitDescripcion = doc.splitTextToSize(descripcion, 50); // Ancho reducido para descripción
+            const rowHeight = Math.max(8, splitDescripcion.length * 7); // Altura mínima 8, o basada en texto
+            
+            // Dibujar celdas de la fila
+            doc.rect(10, rowStartY - 6, 50, rowHeight + 4); // Celda Fecha
+            doc.rect(60, rowStartY - 6, 60, rowHeight + 4); // Celda Lotes
+            doc.rect(120, rowStartY - 6, 55, rowHeight + 4); // Celda Descripción
+            
             // Fecha
             const fechaFormateada = formatearFecha(actividad.fecha);
-            doc.text(fechaFormateada, 15, y);
+            doc.text(fechaFormateada, 12, rowStartY);
             
             // Lotes
             const lotesTexto = Array.isArray(actividad.lotes) ? actividad.lotes.join(', ') : actividad.lotes || '';
-            doc.text(lotesTexto, 60, y);
+            const splitLotes = doc.splitTextToSize(lotesTexto, 58); // Dividir si es muy largo
+            doc.text(splitLotes, 62, rowStartY);
             
-            // Descripción (manejar texto largo)
-            const descripcion = actividad.descripcion || '';
-            const splitDescripcion = doc.splitTextToSize(descripcion, 70);
-            doc.text(splitDescripcion, 120, y);
+            // Descripción
+            doc.text(splitDescripcion, 122, rowStartY);
             
-            y += Math.max(splitDescripcion.length * 7, 8); // Espaciado basado en el texto más largo
-            
-            // Agregar foto si existe
+            // Dibujar celda para foto si existe
             if (actividad.foto) {
+                doc.rect(175, rowStartY - 6, 30, rowHeight + 4); // Celda Foto
                 try {
-                    // Calcular dimensiones para la imagen
-                    const imgWidth = 40; // Ancho en mm
-                    const imgHeight = 40; // Altura en mm (cuadrado para mantener proporciones)
-                    
-                    // Posición de la imagen
-                    const imgX = 170; // Posición X (derecha)
-                    const imgY = y - Math.max(splitDescripcion.length * 7, 8); // Alineada con la descripción
-                    
                     // Detectar formato de la imagen a partir del data URL
                     let format = 'JPEG';
                     if (actividad.foto.includes('image/png') || actividad.foto.includes('.png')) {
@@ -861,18 +872,29 @@ async function exportarPdf() {
                         format = 'JPEG';
                     }
                     
+                    // Calcular dimensiones proporcionales para la imagen dentro de la celda
+                    const imgX = 177;  // Margen izquierdo de la celda
+                    const imgY = rowStartY - 4;  // Ajustar posición vertical
+                    const imgWidth = 26; // Ancho dentro de la celda (30 - 4 de margen)
+                    let imgHeight = 26; // Altura inicial
+                    
                     // Agregar la imagen al PDF
                     doc.addImage(actividad.foto, format, imgX, imgY, imgWidth, imgHeight);
                     
-                    // Ajustar posición Y si la imagen es más alta que el texto
-                    const newHeight = Math.max(imgHeight, (splitDescripcion.length * 7));
-                    y = imgY + newHeight + 5; // +5 para espacio adicional
-                    
                 } catch (imgError) {
                     console.warn('No se pudo agregar la imagen al PDF:', imgError);
-                    // Continuar sin imagen si hay error
+                    // Dibujar texto indicando que había una foto
+                    doc.setFont('helvetica', 'italic');
+                    doc.text('Foto', 177, rowStartY + 4);
+                    doc.setFont('helvetica', 'normal');
                 }
+            } else {
+                // Dibujar celda vacía para mantener estructura de tabla
+                doc.rect(175, rowStartY - 6, 30, rowHeight + 4); // Celda Foto vacía
             }
+            
+            // Ajustar posición Y para la siguiente fila
+            y = rowStartY + rowHeight + 4 + 2; // +2 de espacio adicional
         }
         
         // Generar nombre de archivo con fecha
