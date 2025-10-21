@@ -442,6 +442,18 @@ function eliminarActividad(id) {
 // Función para generar reporte
 async function generarReporte() {
     try {
+        // Verificar que html2canvas esté disponible
+        if (typeof html2canvas === 'undefined') {
+            // Intentar cargar html2canvas dinámicamente si no está disponible
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+        }
+        
+        // Verificar nuevamente después de intentar cargar
+        if (typeof html2canvas === 'undefined') {
+            alert('La librería para generar imágenes no está disponible. Asegúrate de tener conexión a internet para descargarla o actualiza la aplicación.');
+            return;
+        }
+        
         // Obtener fechas de filtro para incluirlas en el reporte
         const filtroFechaDesde = document.getElementById('filtro-fecha-desde').value;
         const filtroFechaHasta = document.getElementById('filtro-fecha-hasta').value;
@@ -680,6 +692,12 @@ async function exportarPdf() {
     try {
         // Verificar que jsPDF esté disponible
         if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+            // Intentar cargar jsPDF dinámicamente si no está disponible
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        }
+        
+        // Verificar nuevamente después de intentar cargar
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
             alert('La librería para generar PDF no está disponible. Asegúrate de tener conexión a internet para descargarla o actualiza la aplicación.');
             return;
         }
@@ -832,6 +850,23 @@ async function exportarPdf() {
     }
 }
 
+// Función auxiliar para cargar scripts dinámicamente
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        // Verificar si el script ya está cargado
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 // Función para alternar el menú hamburguesa
 function toggleMenu() {
     navMenu.classList.toggle('active');
@@ -843,6 +878,25 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
             .then(function(registration) {
                 console.log('ServiceWorker registrado con éxito:', registration.scope);
+                
+                // Verificar el estado de instalación
+                if (registration.active) {
+                    console.log('ServiceWorker activo');
+                }
+                
+                // Escuchar eventos de instalación
+                registration.onupdatefound = function() {
+                    const installingWorker = registration.installing;
+                    installingWorker.onstatechange = function() {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                console.log('PWA actualizado');
+                            } else {
+                                console.log('PWA listo para funcionar offline');
+                            }
+                        }
+                    };
+                };
             })
             .catch(function(error) {
                 console.log('Error al registrar el ServiceWorker:', error);
