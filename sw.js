@@ -1,5 +1,5 @@
 // Service Worker para funcionalidad offline de Finca San Luis
-const CACHE_NAME = 'finca-san-luis-v2';
+const CACHE_NAME = 'finca-san-luis-v3';
 const urlsToCache = [
   './',
   './index.html',

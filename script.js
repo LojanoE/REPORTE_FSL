@@ -548,11 +548,19 @@ async function generarReporte() {
             // Convertir lotes a string para mostrar en el reporte
             const lotesTexto = Array.isArray(actividad.lotes) ? actividad.lotes.join(', ') : actividad.lotes || '';
             
+            // Verificar si la actividad tiene foto
+            const fotoHtml = actividad.foto ? `
+                <div class="report-activity-foto" style="margin: 10px 0; text-align: center;">
+                    <img src="${actividad.foto}" alt="Foto de la actividad" style="max-width: 200px; max-height: 200px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                </div>
+            ` : '';
+            
             reportContainer.innerHTML += `
                 <div class="report-activity" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
                     <div class="report-activity-date" style="font-weight: bold; color: #2e7d32;">${fechaFormateada}</div>
                     <div class="report-activity-lote" style="font-weight: bold; color: #388e3c;">Lotes: ${lotesTexto}</div>
                     <div class="report-activity-descripcion">${actividad.descripcion}</div>
+                    ${fotoHtml}
                 </div>
             `;
         });
@@ -833,6 +841,38 @@ async function exportarPdf() {
             doc.text(splitDescripcion, 120, y);
             
             y += Math.max(splitDescripcion.length * 7, 8); // Espaciado basado en el texto más largo
+            
+            // Agregar foto si existe
+            if (actividad.foto) {
+                try {
+                    // Calcular dimensiones para la imagen
+                    const imgWidth = 40; // Ancho en mm
+                    const imgHeight = 40; // Altura en mm (cuadrado para mantener proporciones)
+                    
+                    // Posición de la imagen
+                    const imgX = 170; // Posición X (derecha)
+                    const imgY = y - Math.max(splitDescripcion.length * 7, 8); // Alineada con la descripción
+                    
+                    // Detectar formato de la imagen a partir del data URL
+                    let format = 'JPEG';
+                    if (actividad.foto.includes('image/png') || actividad.foto.includes('.png')) {
+                        format = 'PNG';
+                    } else if (actividad.foto.includes('image/jpeg') || actividad.foto.includes('.jpg') || actividad.foto.includes('.jpeg')) {
+                        format = 'JPEG';
+                    }
+                    
+                    // Agregar la imagen al PDF
+                    doc.addImage(actividad.foto, format, imgX, imgY, imgWidth, imgHeight);
+                    
+                    // Ajustar posición Y si la imagen es más alta que el texto
+                    const newHeight = Math.max(imgHeight, (splitDescripcion.length * 7));
+                    y = imgY + newHeight + 5; // +5 para espacio adicional
+                    
+                } catch (imgError) {
+                    console.warn('No se pudo agregar la imagen al PDF:', imgError);
+                    // Continuar sin imagen si hay error
+                }
+            }
         }
         
         // Generar nombre de archivo con fecha
