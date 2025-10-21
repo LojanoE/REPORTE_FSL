@@ -1,0 +1,21 @@
+{
+  "name": "Finca San Luis - Registro de Actividades",
+  "short_name": "FincaSL",
+  "description": "Aplicación para registrar actividades diarias en la finca San Luis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f4",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
