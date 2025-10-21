@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Actividades - Finca San Luis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- Agregar soporte para instalación en dispositivos móviles -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="FincaSL">
+    <meta name="theme-color" content="#2e7d32">
+</head>
+<body>
+    <div class="container">
+        <!-- Header con fecha y hora -->
+        <header>
+            <h1>Finca San Luis</h1>
+            <div class="datetime-display">
+                <span id="current-date"></span>
+                <span id="current-time"></span>
+            </div>
+        </header>
+
+        <!-- Navegación -->
+        <nav class="main-nav">
+            <button id="menu-toggle" class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul id="nav-menu">
+                <li><a href="#" class="nav-link active" data-tab="registro">Registro</a></li>
+                <li><a href="#" class="nav-link" data-tab="historial">Historial</a></li>
+            </ul>
+        </nav>
+
+        <!-- Sección de registro -->
+        <section id="registro" class="tab-content active">
+            <h2>Registro de Actividades</h2>
+            <form id="activity-form">
+                <div class="form-group">
+                    <label for="lote">Lote(s):</label>
+                    <select id="lote" multiple required>
+                        <option value="Lote 1">Lote 1</option>
+                        <option value="Lote 2">Lote 2</option>
+                        <option value="Lote 3">Lote 3</option>
+                        <option value="Lote 4">Lote 4</option>
+                        <option value="Lote 5">Lote 5</option>
+                        <option value="Lote 6">Lote 6</option>
+                        <option value="Lote 7">Lote 7</option>
+                        <option value="Lote 8">Lote 8</option>
+                        <option value="Lote 9">Lote 9</option>
+                        <option value="Lote 10">Lote 10</option>
+                        <option value="Lote 11">Lote 11</option>
+                        <option value="Lote 12">Lote 12</option>
+                        <option value="Lote 13">Lote 13</option>
+                        <option value="Plátanos">Plátanos</option>
+                        <option value="Piñas">Piñas</option>
+                    </select>
+                    <small>Mantén presionada la tecla Ctrl (Cmd en Mac) para seleccionar varios lotes</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción de la Actividad:</label>
+                    <textarea id="descripcion" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="foto">Adjuntar Foto:</label>
+                    <input type="file" id="foto" accept="image/*" capture="environment">
+                    <div class="file-input-buttons">
+                        <button type="button" class="btn-gallery" onclick="seleccionarDesdeGaleria()">Seleccionar de Galería</button>
+                    </div>
+                    <div id="foto-preview" class="image-preview"></div>
+                </div>
+
+                <button type="submit" class="btn-submit">Registrar Actividad</button>
+            </form>
+        </section>
+
+        <!-- Sección de historial -->
+        <section id="historial" class="tab-content">
+            <h2>Historial de Actividades</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filtro-fecha-desde">Desde:</label>
+                    <input type="date" id="filtro-fecha-desde">
+                </div>
+                <div class="filter-group">
+                    <label for="filtro-fecha-hasta">Hasta:</label>
+                    <input type="date" id="filtro-fecha-hasta">
+                </div>
+                <div class="filter-group">
+                    <label for="filtro-lote">Lote:</label>
+                    <select id="filtro-lote">
+                        <option value="">Todos los lotes</option>
+                        <option value="Lote 1">Lote 1</option>
+                        <option value="Lote 2">Lote 2</option>
+                        <option value="Lote 3">Lote 3</option>
+                        <option value="Lote 4">Lote 4</option>
+                        <option value="Lote 5">Lote 5</option>
+                        <option value="Lote 6">Lote 6</option>
+                        <option value="Lote 7">Lote 7</option>
+                        <option value="Lote 8">Lote 8</option>
+                        <option value="Lote 9">Lote 9</option>
+                        <option value="Lote 10">Lote 10</option>
+                        <option value="Lote 11">Lote 11</option>
+                        <option value="Lote 12">Lote 12</option>
+                        <option value="Lote 13">Lote 13</option>
+                        <option value="Plátanos">Plátanos</option>
+                        <option value="Piñas">Piñas</option>
+                    </select>
+                </div>
+                <button id="aplicar-filtros" class="btn-filter">Aplicar Filtros</button>
+            </div>
+            <div id="historial-actividades"></div>
+            <div class="report-buttons">
+                <button id="generar-reporte" class="btn-report">Generar Reporte para WhatsApp</button>
+                <button id="exportar-json" class="btn-json">Exportar Datos (JSON)</button>
+                <button id="exportar-pdf" class="btn-pdf">Exportar PDF</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Librería para convertir HTML a imagen -->
+    <script src="html2canvas.min.js"></script>
+    <!-- Librería para generar PDF -->
+    <script src="jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
